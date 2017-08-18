@@ -1,0 +1,57 @@
+# bazel core 
+
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+
+
+# rules_go
+
+git_repository(
+  name = "io_bazel_rules_go",
+  remote = "https://github.com/bazelbuild/rules_go.git",
+  commit = "fb6c5d77fcfc7794da6a5441306739687948e09d",
+)
+
+load("@io_bazel_rules_go//go:def.bzl", "go_repositories")
+go_repositories()
+
+
+
+# rules_docker
+
+git_repository(
+    name = "io_bazel_rules_docker",
+    remote = "https://github.com/bazelbuild/rules_docker.git",
+    tag = "v0.1.0",
+)
+
+load(
+  "@io_bazel_rules_docker//docker:docker.bzl",
+  "docker_repositories", "docker_pull"
+)
+docker_repositories()
+
+docker_pull(
+  name = "alpine",
+  registry = "index.docker.io",
+  repository = "library/alpine",
+  digest = "sha256:1072e499f3f655a032e88542330cf75b02e7bdf673278f701d7ba61629ee3ebe",
+)
+
+
+
+# rules_node
+
+git_repository(
+    name = "org_pubref_rules_node",
+    remote = "https://github.com/pubref/rules_node.git",
+    commit = "f6fff71fe8b1bee8d3a22e50eca0f76427ab939e",
+)
+
+load("@org_pubref_rules_node//node:rules.bzl", "node_repositories", "npm_repository")
+
+node_repositories(
+  version = "8.3.0",
+  linux_sha256 = "b8dd14b3576681e8071ee59e5e1e8ac77e7ca335c12d7f584d9ab083e1fd4fd5",
+  darwin_sha256 = "a627354982a514e77e5c37ed5952edc81a7dd9c4f661fd919f192c21ae548654",
+)

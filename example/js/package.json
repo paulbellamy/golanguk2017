@@ -1,0 +1,12 @@
+{
+  "name": "lasersteak",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {},
+  "scripts": {
+    "build": "mkdir -p build && cp -Lr ./public/* ./build/. && (cd build/static/js && webpack ../../../src/index.js main.js)"
+  },
+  "devDependencies": {
+    "webpack": "^2.6.1"
+  }
+}

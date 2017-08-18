@@ -1,0 +1,51 @@
+load("@org_pubref_rules_node//node:rules.bzl", "node_binary")
+
+# We need to tar the assets up because build steps have to have a pre-known output file.
+genrule(
+  name = "build",
+  srcs = glob([
+    "src/**/*",
+    "public/**/*",
+  ]) + [
+    "package.json",
+    "package-lock.json",
+    "webpack.config.js",
+    ":node_modules",
+    "@org_pubref_rules_node_toolchain//:npm_tool",
+    "@org_pubref_rules_node_toolchain//:node_tool",
+  ],
+  outs = ["ui.tar.gz"],
+  visibility = ["//visibility:public"],
+  cmd = """
+    # make sure we're using our toolchain npm/node
+    export PATH="$$(cd "$$(dirname $(location @org_pubref_rules_node_toolchain//:npm_tool))"; pwd):$$PATH"
+    export PATH="$$(cd "$$(dirname $(location @org_pubref_rules_node_toolchain//:node_tool))"; pwd):$$PATH"
+    cd js
+
+    # Then extract the tarball of node_modules into the tmp dir.
+    tar zxf ../$(location :node_modules) &&
+
+    # Finally build the UI, and tar up the built assets
+    npm run build && tar --mtime='1970-01-01' -zcf - ./build > ../$(@)
+  """
+)
+
+genrule(
+  name = "node_modules",
+  srcs = [
+    "package.json",
+    "package-lock.json",
+    "@org_pubref_rules_node_toolchain//:npm_tool",
+    "@org_pubref_rules_node_toolchain//:node_tool",
+  ],
+  outs = ["node_modules.tgz"],
+  cmd = """
+    # make sure we're using our toolchain npm/node
+    export PATH="$$(cd "$$(dirname $(location @org_pubref_rules_node_toolchain//:npm_tool))"; pwd):$$PATH"
+    export PATH="$$(cd "$$(dirname $(location @org_pubref_rules_node_toolchain//:node_tool))"; pwd):$$PATH"
+    cd js
+
+    # Install and tar the packages
+    npm install && tar --mtime='1970-01-01' -zcf - ./node_modules > ../$(@)
+  """,
+)
